@@ -3,6 +3,9 @@
  */
 (() => {
   'use strict';
+
+  window.Stokr = window.Stokr || {};
+
   const state = {
     ui: {
       "stockChange": "PercentChange"
@@ -118,7 +121,7 @@
       // Deleting the Stock in Data and render only the stocks-list
       const stock = e.target.closest('li');
       const stockSymbol = stock.dataset.id;
-      const stockData = getStockData(stockSymbol)
+      const stockData = getStockData(stockSymbol);
       const stockPosition = state.stocksData.indexOf(stockData);
       const newStockPosition = e.target.dataset.direction === 'up' ? stockPosition - 1 : stockPosition + 1;
       state.stocksData.splice(stockPosition, 1);
@@ -147,10 +150,6 @@
   function getStockChange(stockData) {
     const stockChangeVal = stockData[state.ui.stockChange];
     return stockChangeVal.indexOf('%') > -1 ? stockChangeVal : parseFloat(stockChangeVal).toFixed(2);
-  }
-
-  function getStockData(stockSymbol) {
-    return state.stocksData.find(currStockData => currStockData.Symbol === stockSymbol);
   }
 
   function checkArrowDisabled(index, arrowDirection) {
