@@ -1,0 +1,165 @@
+html {
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  background-color: #f0f4f7;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+}
+
+#root {
+  display: flex;
+  margin: 60px 40px;
+  flex: 1;
+  flex-flow: column wrap;
+  background-color: #ffffff;
+}
+
+header {
+  height: 128px;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  height: 53px;
+  width: 166px;
+  font-family: "Lucida Grande";
+  font-weight: bold;
+  font-size: 39px;
+  color: #41bf15;
+  text-transform: uppercase;
+  line-height: 39px;
+  text-align: left;
+}
+
+.header-list {
+  list-style: none;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.header-list > li {
+  margin: 0 0 0 20px;
+}
+
+.header-button {
+  background: transparent no-repeat;
+  border: none;
+  color: #ababab;
+  font-size: 40px;
+}
+
+.icon-search {
+  /*padding-top: 30px;*/
+  color: #ababab;
+}
+
+main {
+  padding: 0;
+}
+
+.stocks-list {
+  display: flex;
+  flex-flow: column nowrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stock {
+  height: 118px;
+  padding: 0 30px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  border: 0 solid #e5e5e5;
+  border-top-width: 1px;
+}
+
+.stock:last-child {
+  border-bottom-width: 1px;
+}
+
+.stock-text {
+  width: 465px;
+  height: 45px;
+  font-family: Avenir;
+  font-size: 33px;
+  font-weight: 300;
+  text-align: left;
+  color: #59737c;
+}
+
+.stock-stats {
+  width: 300px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.stock-last-price {
+  height: 35px;
+  width: 99px;
+  font-family: HelveticaNeueW01-55Roman;
+  font-size: 30px;
+  color: #59737c;
+}
+
+.stock-change-button {
+  height: 56px;
+  width: 150px;
+  border-radius: 10px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-size: 34px;
+  font-family: Avenir;
+  font-weight: 300;
+  color: #ffffff;
+}
+
+.stock-arrows {
+  height: 38px;
+  width: 48px;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.icon-arrow {
+  padding: 0;
+  background: transparent no-repeat;
+  border: none;
+  display: block;
+  color: #ababab;
+  font-size: 20px;
+}
+
+.icon-arrow.down {
+  transform: scaleY(-1);
+}
+
+.icon-arrow:disabled {
+  color: rgba(171, 171, 171, 0.2);
+}
+
+.positive-change{
+  background-color: #63da39;
+}
+.negative-change{
+  background-color: #ff4f46;
+}
