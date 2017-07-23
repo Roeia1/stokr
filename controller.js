@@ -129,10 +129,10 @@
 
   function toggleStockChangeFormat(e) {
     if (e.target.className.includes('stock-change-button')) {
-      state.stockChange = state.stockChange === 'PercentChange' ? 'Change' : 'PercentChange';
+      state.ui.stockChange = state.ui.stockChange === 'PercentChange' ? 'Change' : 'PercentChange';
 
       document.querySelectorAll('.stock').forEach(stock => {
-        const stockData = getStockData(stock.id);
+        const stockData = getStockData(stock.dataset.id);
         stock.querySelector('.stock-change-button').textContent = getStockChange(stockData);
       });
     }
