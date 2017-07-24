@@ -8,7 +8,8 @@
 
   const _state = {
     ui: {
-      "stockChangeDisplay": "PercentChange"
+      'stockChangeDisplay': 'PercentChange',
+      'isFilterOpen' : false
     },
     stocksData: []
   };
@@ -24,10 +25,14 @@
 
     const stocksList = document.querySelector('.stocks-list');
 
-    stocksList.addEventListener('click', handleStockListClick);
+    stocksList.addEventListener('click', handleStocksListClick);
+
+    const toolbar = document.querySelector('.toolbar');
+
+    toolbar.addEventListener('click', handleToolbarClick)
   })();
 
-  function handleStockListClick(e) {
+  function handleStocksListClick(e) {
     toggleStockChangeFormat(e);
     changeStockPosition(e);
   }
@@ -48,6 +53,10 @@
       window.Stokr.Model.addStockChangeDisplayData();
       window.Stokr.View.renderStocksList(_state);
     }
+  }
+
+  function handleToolbarClick() {
+
   }
 
   window.Stokr.Controller = {}

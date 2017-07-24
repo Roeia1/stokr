@@ -24,6 +24,11 @@ body {
 }
 
 header {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.top-header {
   height: 128px;
   padding: 0 30px;
   display: flex;
@@ -43,17 +48,17 @@ header {
   text-align: left;
 }
 
-.header-list {
+.toolbar {
   list-style: none;
   display: flex;
   flex-flow: row nowrap;
 }
 
-.header-list > li {
+.toolbar > li {
   margin: 0 0 0 20px;
 }
 
-.header-button {
+.toolbar-button {
   background: transparent no-repeat;
   border: none;
   color: #ababab;
@@ -61,8 +66,18 @@ header {
 }
 
 .icon-search {
-  /*padding-top: 30px;*/
   color: #ababab;
+}
+
+.filter {
+  height: 161px;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.filter-parameters {
+  display: inline-flex;
+  flex-flow: column wrap;
 }
 
 main {

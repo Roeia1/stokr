@@ -24,16 +24,35 @@
   function getHeader() {
     return `
       <header>
-        <h1 class="logo">stokr</h1>
-      <nav>
-        <ul class="header-list">
-          <li><a href="" class="header-button icon-search"></a></li>
-          <li><button class="header-button icon-refresh"></button></li>
-          <li><button class="header-button icon-filter"></button></li>
-          <li><button class="header-button icon-settings"></button></li>
-        </ul>
-      </nav>
+        <section class="top-header">
+          <h1 class="logo">stokr</h1>
+          <nav>
+            <ul class="toolbar">
+              <li><a href="" class="toolbar-button icon-search" data-type="search"></a></li>
+              <li><button class="toolbar-button icon-refresh" data-type="refresh"></button></li>
+              <li><button class="toolbar-button icon-filter" data-type="filter" style="color: ${_state.ui.isFilterOpen ? '#41bf15' : '#ababab'}"></button></li>
+              <li><button class="toolbar-button icon-settings" data-type="settings"></button></li>
+            </ul>
+          </nav>
+        </section>
+        ${_state.ui.isFilterOpen ? getFilter() : ''}
       </header> 
+    `;
+  }
+
+  function getFilter() {
+    return `
+      <section class="filter">
+        <span class="filter-parameters">
+          <label>by name<input type="text"></label>
+          <label>by gain<input type="text"></label>
+          <label>by range: from<input type="text"></label>
+          <label>by range: to<input type="text"></label>
+        </span>
+        <span>
+          apply
+        </span>
+      </section>
     `;
   }
 
