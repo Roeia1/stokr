@@ -9,20 +9,22 @@
   // ------- Render Functions --------
 
   function render(stocksData, uiState) {
-    const stocksListPage = document.querySelector('[data-id=root]');
-
-    stocksListPage.innerHTML =
+    document.querySelector('[data-id=root]').innerHTML =
       `
-      ${getHeader(uiState) + getMain(stocksData)}
+      ${getHeader(uiState) + getMain(stocksData, uiState)}
     `;
 
     addAllEvents();
   }
 
   function renderStocksList(stocksData, uiState) {
-    document.querySelector('.stocks-list').innerHTML = getStocks(stocksData);
-
+    document.querySelector('.stocks-list').outerHTML = getStocksList(stocksData, uiState);
     addStocksListEvents();
+  }
+
+  function renderHeader(uiState) {
+    document.querySelector('header').outerHTML = getHeader(uiState);
+    addToolbarEvents();
   }
 
   // -------- Functions ---------
@@ -55,34 +57,34 @@
           <label>by range: from<input type="text"></label>
           <label>by range: to<input type="text"></label>
         </span>
-        <span>
+        <button>
           apply
-        </span>
+        </button>
       </section>
     `;
   }
 
-  function getMain(stocksData) {
+  function getMain(stocksData, uiState) {
     return `
       <main>
-        ${getStocksList(stocksData)}
+        ${getStocksList(stocksData, uiState)}
       </main> 
     `;
   }
 
-  function getStocksList(stocksData) {
+  function getStocksList(stocksData, uiState) {
     return `
       <ul class="stocks-list">
-        ${getStocks(stocksData)}
+        ${getStocks(stocksData, uiState)}
       </ul>
     `;
   }
 
-  function getStocks(stocksData) {
-    return stocksData.map((stockData, index) => getStock(stockData)).join('');
+  function getStocks(stocksData, uiState) {
+    return stocksData.map((stockData, index) => getStock(stockData, uiState)).join('');
   }
 
-  function getStock(stockData) {
+  function getStock(stockData, uiState) {
     return `
       <li class="stock" data-symbol="${stockData.Symbol}">
         <span class="stock-text">
@@ -95,12 +97,18 @@
           <button class="stock-change-display ${stockData.positiveChange ? 'positive-change' : 'negative-change'}" data-type="stockChangeDisplay">
             ${stockData.changeDisplay}
           </button>
-          <span class="stock-arrows">
-            <button class="icon-arrow up" data-type="arrow" data-direction="up" ${stockData.canMoveUp ? '' : 'disabled'}></button>
-            <button class="icon-arrow down" data-type="arrow" data-direction="down" ${stockData.canMoveDown ? '' : 'disabled'}></button>
-          </span>
+          ${!uiState.isFilterOpen ? getStockArrows(stockData) : ''}
         </span>
       </li>  
+    `;
+  }
+
+  function getStockArrows(stockData) {
+    return `
+      <span class="stock-arrows">
+        <button class="icon-arrow up" data-type="arrow" data-direction="up" ${stockData.canMoveUp ? '' : 'disabled'}></button>
+        <button class="icon-arrow down" data-type="arrow" data-direction="down" ${stockData.canMoveDown ? '' : 'disabled'}></button>
+      </span>
     `;
   }
 
@@ -130,7 +138,7 @@
         break;
       }
       case 'filter': {
-
+        window.Stokr.Ctrl.toolbarFilterClick();
         break;
       }
       case 'settings': {
@@ -156,6 +164,7 @@
 
   window.Stokr.View = {
     render,
+    renderHeader,
     renderStocksList
   }
 })();

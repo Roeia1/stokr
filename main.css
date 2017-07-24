@@ -28,6 +28,11 @@ header {
   flex-flow: column nowrap;
 }
 
+header > section {
+  border: 0 solid #e5e5e5;
+  border-bottom-width: 1px;
+}
+
 .top-header {
   height: 128px;
   padding: 0 30px;
@@ -67,13 +72,53 @@ header {
 
 .filter {
   height: 161px;
+  margin: 0 29px;
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .filter-parameters {
-  display: inline-flex;
+  height: 140px;
+  /*width: 1000px;*/
+  display: flex;
   flex-flow: column wrap;
+  justify-content: center;
+  text-transform: capitalize;
+  font-size: 26px;
+  font-family: HelveticaNeueW01-55Roman;
+  color: #59737c;
+}
+
+.filter-parameters label {
+  margin: 5px 10px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-parameters input {
+  height: 55px;
+  width: 332px;
+  margin-left: 30px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  border: solid 1px #e0e0e0;
+}
+
+.filter > button {
+  width: 120px;
+  height: 111px;
+  background-color: #41bf15;
+  border: solid 1px #247906;
+  border-radius: 50%;
+  font-family: HelveticaNeueW01-75;
+  font-size: 30px;
+  font-weight: bold;
+  text-transform: capitalize;
+  color: #ffffff;
 }
 
 main {
@@ -96,10 +141,6 @@ main {
   align-items: center;
   justify-content: space-between;
   border: 0 solid #e5e5e5;
-  border-top-width: 1px;
-}
-
-.stock:last-child {
   border-bottom-width: 1px;
 }
 

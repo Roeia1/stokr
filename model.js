@@ -8,9 +8,9 @@
 
   const _state = {
     ui : {
-      "currentStockChangeDisplay": 0,
-      'stockChangeDisplay' : ['Change', 'PercentChange'],
-      'isFilterOpen' : false
+      currentStockChangeDisplay : 0,
+      stockChangeDisplay : ['Change', 'PercentChange'],
+      isFilterOpen : true
     },
     stocksData : [
       {

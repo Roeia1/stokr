@@ -45,6 +45,13 @@
     view.renderStocksList(state.stocksData, state.ui)
   }
 
+  function toolbarFilterClick() {
+    const state = model.getState();
+    state.ui.isFilterOpen = !state.ui.isFilterOpen;
+    view.renderHeader(state.ui);
+    view.renderStocksList(state.stocksData, state.ui)
+  }
+
   // ------- Private Functions ----------
 
   function initStocksData() {
@@ -103,7 +110,8 @@
 
   window.Stokr.Ctrl = {
     moveStock,
-    toggleStockChangeDisplay
+    toggleStockChangeDisplay,
+    toolbarFilterClick
   }
 
 })();
