@@ -65,10 +65,6 @@ header {
   font-size: 40px;
 }
 
-.icon-search {
-  color: #ababab;
-}
-
 .filter {
   height: 161px;
   display: flex;
@@ -133,7 +129,7 @@ main {
   color: #59737c;
 }
 
-.stock-change-button {
+.stock-change-display {
   height: 56px;
   width: 150px;
   border-radius: 10px;

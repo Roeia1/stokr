@@ -6,60 +6,105 @@
 
   window.Stokr = window.Stokr || {};
 
-  const _state = {
-    ui: {
-      'stockChangeDisplay': 'PercentChange',
-      'isFilterOpen' : false
-    },
-    stocksData: []
-  };
+  const view = window.Stokr.View;
+
+  const model = window.Stokr.Model;
 
   // -------------Main-------------
 
   (() => {
-    window.Stokr.Model.initStocksData(_state.ui);
+    initStocksData();
 
-    _state.stocksData = window.Stokr.Model.getStocks();
+    const state = model.getState();
 
-    window.Stokr.View.render(_state);
-
-    const stocksList = document.querySelector('.stocks-list');
-
-    stocksList.addEventListener('click', handleStocksListClick);
-
-    const toolbar = document.querySelector('.toolbar');
-
-    toolbar.addEventListener('click', handleToolbarClick)
+    view.render(state.stocksData, state.ui);
   })();
 
-  function handleStocksListClick(e) {
-    toggleStockChangeFormat(e);
-    changeStockPosition(e);
-  }
+  // ------ Public Functions --------
 
-  function changeStockPosition(e) {
-    if (e.target.dataset.type === 'arrow') {
-      const stock = e.target.closest('li');
-      const stockSymbol = stock.dataset.id;
-      const stockData = window.Stokr.Model.getStockBySymbol(stockSymbol);
-      window.Stokr.Model.moveStock(stockData, e.target.dataset.direction);
-      window.Stokr.View.renderStocksList(_state);
+  function moveStock(stockSymbol, direction) {
+    const state = model.getState();
+    const stockData = getStockDataBySymbol(stockSymbol, state.stocksData);
+    if (state.stocksData.indexOf(stockData) > -1) {
+      const stockPosition = state.stocksData.indexOf(stockData);
+      const newStockPosition = direction === 'up' ? stockPosition - 1 : stockPosition + 1;
+      state.stocksData.splice(stockPosition, 1);
+      state.stocksData.splice(newStockPosition, 0, stockData);
     }
+    setStocksMovementData(state.stocksData);
+    view.renderStocksList(state.stocksData, state.ui);
   }
 
-  function toggleStockChangeFormat(e) {
-    if (e.target.className.includes('stock-change-button')) {
-      _state.ui.stockChangeDisplay = _state.ui.stockChangeDisplay === 'PercentChange' ? 'Change' : 'PercentChange';
-      window.Stokr.Model.addStockChangeDisplayData();
-      window.Stokr.View.renderStocksList(_state);
-    }
+  function toggleStockChangeDisplay() {
+    const state = model.getState();
+    if (state.ui.currentStockChangeDisplay < state.ui.stockChangeDisplay.length - 1)
+      state.ui.currentStockChangeDisplay++;
+    else
+      state.ui.currentStockChangeDisplay = 0;
+    setStocksChangeDisplayData(state.stocksData);
+    view.renderStocksList(state.stocksData, state.ui)
   }
 
-  function handleToolbarClick() {
+  // ------- Private Functions ----------
 
+  function initStocksData() {
+    const state = model.getState();
+    setStocksMovementData(state.stocksData);
+    setStocksChangeDirectionData(state.stocksData);
+    setStocksChangeDisplayData(state.stocksData);
+    setStocksLastTradePriceOnlyDisplayData(state.stocksData);
   }
 
-  window.Stokr.Controller = {}
+  function setStocksMovementData(stocksData) {
+    stocksData.forEach((stock, index) => {
+      stock.canMoveUp = true;
+      stock.canMoveDown = true;
+      if (index === 0)
+        stock.canMoveUp = false;
+      if (index === stocksData.length - 1)
+        stock.canMoveDown = false;
+    });
+  }
+
+  function setStocksChangeDirectionData(stocksData) {
+    stocksData.forEach(stock => {
+      stock.positiveChange = isStockChangePositive(stock);
+    });
+  }
+
+  function setStocksChangeDisplayData(stocksData) {
+    stocksData.forEach(stock => {
+      stock.changeDisplay = getStockChangeDisplayData(stock);
+    });
+  }
+
+  function setStocksLastTradePriceOnlyDisplayData(stocksData) {
+    stocksData.forEach(stock => {
+      stock.lastTradePriceOnlyDisplay = parseFloat(stock.LastTradePriceOnly).toFixed(2);
+    })
+  }
+
+  // -------- Utilities ----------
+
+  function getStockChangeDisplayData(stockData) {
+    const state = model.getState();
+    const currentStockChangeDisplay = state.ui.stockChangeDisplay[state.ui.currentStockChangeDisplay];
+    const stockChangeDisplayData = stockData[currentStockChangeDisplay];
+    return stockChangeDisplayData.indexOf('%') > -1 ? stockChangeDisplayData : parseFloat(stockChangeDisplayData).toFixed(2);
+  }
+
+  function getStockDataBySymbol(stockSymbol, stocksData) {
+    return stocksData.find(currStockData => currStockData.Symbol === stockSymbol);
+  }
+
+  function isStockChangePositive(stockData) {
+    return stockData.Change > 0;
+  }
+
+  window.Stokr.Ctrl = {
+    moveStock,
+    toggleStockChangeDisplay
+  }
 
 })();
 
