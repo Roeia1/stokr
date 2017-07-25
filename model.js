@@ -10,7 +10,8 @@
     ui : {
       currentStockChangeDisplay : 0,
       stockChangeDisplay : ['Change', 'PercentChange'],
-      isFilterOpen : true
+      isFilterOpen : true,
+      filters: {}
     },
     stocksData : [
       {

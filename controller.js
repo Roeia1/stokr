@@ -15,51 +15,52 @@
   (() => {
     initStocksData();
 
-    const state = model.getState();
-
-    view.render(state.stocksData, state.ui);
+    view.render(getStocksData(), getStateUI());
   })();
 
   // ------ Public Functions --------
 
   function moveStock(stockSymbol, direction) {
-    const state = model.getState();
-    const stockData = getStockDataBySymbol(stockSymbol, state.stocksData);
-    if (state.stocksData.indexOf(stockData) > -1) {
-      const stockPosition = state.stocksData.indexOf(stockData);
+    const stockData = getStockDataBySymbol(stockSymbol, getStocksData());
+    if (getStocksData().indexOf(stockData) > -1) {
+      const stockPosition = getStocksData().indexOf(stockData);
       const newStockPosition = direction === 'up' ? stockPosition - 1 : stockPosition + 1;
-      state.stocksData.splice(stockPosition, 1);
-      state.stocksData.splice(newStockPosition, 0, stockData);
+      getStocksData().splice(stockPosition, 1);
+      getStocksData().splice(newStockPosition, 0, stockData);
     }
-    setStocksMovementData(state.stocksData);
-    view.renderStocksList(state.stocksData, state.ui);
+    setStocksMovementData(getStocksData());
+    view.renderStocksList(getStocksData(), getStateUI());
   }
 
   function toggleStockChangeDisplay() {
-    const state = model.getState();
-    if (state.ui.currentStockChangeDisplay < state.ui.stockChangeDisplay.length - 1)
-      state.ui.currentStockChangeDisplay++;
+    if (getStateUI().currentStockChangeDisplay < getStateUI().stockChangeDisplay.length - 1)
+      getStateUI().currentStockChangeDisplay++;
     else
-      state.ui.currentStockChangeDisplay = 0;
-    setStocksChangeDisplayData(state.stocksData);
-    view.renderStocksList(state.stocksData, state.ui)
+      getStateUI().currentStockChangeDisplay = 0;
+    setStocksChangeDisplayData(getStocksData());
+    view.renderStocksList(getStocksData(), getStateUI())
   }
 
   function toolbarFilterClick() {
-    const state = model.getState();
-    state.ui.isFilterOpen = !state.ui.isFilterOpen;
-    view.renderHeader(state.ui);
-    view.renderStocksList(state.stocksData, state.ui)
+    getStateUI().isFilterOpen = !getStateUI().isFilterOpen;
+    if (!getStateUI().isFilterOpen)
+      getStateUI().filters = {};
+    view.renderHeader(getStateUI());
+    view.renderStocksList(getStocksData(), getStateUI())
+  }
+
+  function setFilters(filterParameters) {
+    getStateUI().filters = filterParameters;
+    view.renderStocksList(getStocksData(), getStateUI());
   }
 
   // ------- Private Functions ----------
 
   function initStocksData() {
-    const state = model.getState();
-    setStocksMovementData(state.stocksData);
-    setStocksChangeDirectionData(state.stocksData);
-    setStocksChangeDisplayData(state.stocksData);
-    setStocksLastTradePriceOnlyDisplayData(state.stocksData);
+    setStocksMovementData(getStocksData());
+    setStocksChangeDirectionData(getStocksData());
+    setStocksChangeDisplayData(getStocksData());
+    setStocksLastTradePriceOnlyDisplayData(getStocksData());
   }
 
   function setStocksMovementData(stocksData) {
@@ -91,11 +92,38 @@
     })
   }
 
+  function getFilteredStocks(stocksData, filterParameters) {
+    return stocksData.filter(stockData => {
+      for (const [key, value] of Object.entries(filterParameters)) {
+        switch (key) {
+          case 'name': {
+            if (!stockData.Name.toLowerCase().includes(value.toLowerCase()))
+              return false;
+            break;
+          }
+          case 'gain': {
+            break;
+          }
+          case 'range-from': {
+            if (stockData.LastTradePriceOnly < value)
+              return false;
+            break;
+          }
+          case 'range-to': {
+            if (stockData.LastTradePriceOnly > value)
+              return false;
+            break;
+          }
+        }
+      }
+      return true;
+    });
+  }
+
   // -------- Utilities ----------
 
   function getStockChangeDisplayData(stockData) {
-    const state = model.getState();
-    const currentStockChangeDisplay = state.ui.stockChangeDisplay[state.ui.currentStockChangeDisplay];
+    const currentStockChangeDisplay = getStateUI().stockChangeDisplay[getStateUI().currentStockChangeDisplay];
     const stockChangeDisplayData = stockData[currentStockChangeDisplay];
     return stockChangeDisplayData.indexOf('%') > -1 ? stockChangeDisplayData : parseFloat(stockChangeDisplayData).toFixed(2);
   }
@@ -108,10 +136,24 @@
     return stockData.Change > 0;
   }
 
+  function getStocksData() {
+    const state = model.getState();
+    if (state.ui.isFilterOpen) {
+      return getFilteredStocks(state.stocksData, state.ui.filters);
+    } else {
+      return state.stocksData;
+    }
+  }
+
+  function getStateUI() {
+    return model.getState().ui;
+  }
+
   window.Stokr.Ctrl = {
     moveStock,
     toggleStockChangeDisplay,
-    toolbarFilterClick
+    toolbarFilterClick,
+    setFilters
   }
 
 })();

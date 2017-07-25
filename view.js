@@ -25,6 +25,8 @@
   function renderHeader(uiState) {
     document.querySelector('header').outerHTML = getHeader(uiState);
     addToolbarEvents();
+    if (uiState.isFilterOpen)
+      addFilterEvents();
   }
 
   // -------- Functions ---------
@@ -52,10 +54,10 @@
     return `
       <section class="filter">
         <span class="filter-parameters">
-          <label>by name<input type="text"></label>
-          <label>by gain<input type="text"></label>
-          <label>by range: from<input type="text"></label>
-          <label>by range: to<input type="text"></label>
+          <label id="name">by name<input type="text"></label>
+          <label id="gain">by gain<input type="text"></label>
+          <label id="range-from">by range: from<input type="text"></label>
+          <label id="range-to">by range: to<input type="text"></label>
         </span>
         <button>
           apply
@@ -117,6 +119,7 @@
   function addAllEvents() {
     addToolbarEvents();
     addStocksListEvents();
+    addFilterEvents()
   }
 
   function addToolbarEvents() {
@@ -127,6 +130,21 @@
   function addStocksListEvents() {
     const stocksList = document.querySelector('.stocks-list');
     stocksList.addEventListener('click', stocksListClickHandler);
+  }
+
+  function addFilterEvents() {
+    const filterApplyButton = document.querySelector('.filter > button');
+    filterApplyButton.addEventListener('click', filterApplyClickHandler)
+  }
+
+  function filterApplyClickHandler(e) {
+    const filterParameters = {};
+    const filterLabels = document.querySelectorAll('.filter-parameters > label');
+    filterLabels.forEach(filterLabel => {
+      if (filterLabel.childNodes[1].value)
+        filterParameters[filterLabel.id] = filterLabel.childNodes[1].value;
+    });
+    window.Stokr.Ctrl.setFilters(filterParameters);
   }
 
   function toolbarClickHandler(e) {
