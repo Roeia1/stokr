@@ -8,13 +8,13 @@
 
   // ------- Render Functions --------
 
-  function render(stocksData, uiState) {
+  function renderStocksPage(stocksData, uiState) {
     document.querySelector('[data-id=root]').innerHTML =
       `
       ${getHeader(uiState) + getMain(stocksData, uiState)}
     `;
 
-    addAllEvents();
+    addAllEvents(uiState);
   }
 
   function renderStocksList(stocksData, uiState) {
@@ -26,7 +26,11 @@
     document.querySelector('header').outerHTML = getHeader(uiState);
     addToolbarEvents();
     if (uiState.isFilterOpen)
-      addFilterEvents();
+      addFilterEvents(uiState);
+  }
+
+  function renderSearchPage() {
+    document.querySelector('[data-id=root]').innerHTML = ``;
   }
 
   // -------- Functions ---------
@@ -38,7 +42,7 @@
           <h1 class="logo">stokr</h1>
           <nav>
             <ul class="toolbar">
-              <li><a href="" class="toolbar-button icon-search" data-type="search"></a></li>
+              <li><a href="#search" class="toolbar-button icon-search" data-type="search"></a></li>
               <li><button class="toolbar-button icon-refresh" data-type="refresh"></button></li>
               <li><button class="toolbar-button icon-filter" data-type="filter" style="color: ${uiState.isFilterOpen ? '#41bf15' : '#ababab'}"></button></li>
               <li><button class="toolbar-button icon-settings" data-type="settings"></button></li>
@@ -56,8 +60,8 @@
         <span class="filter-parameters">
           <label id="name">by name<input type="text"></label>
           <label id="gain">by gain<input type="text"></label>
-          <label id="range-from">by range: from<input type="text"></label>
-          <label id="range-to">by range: to<input type="text"></label>
+          <label id="rangeFrom">by range: from<input type="text"></label>
+          <label id="rangeTo">by range: to<input type="text"></label>
         </span>
         <button>
           apply
@@ -116,10 +120,16 @@
 
   // ------------- Events -------------
 
-  function addAllEvents() {
+  function addAllEvents(uiState) {
+    addRouteEvents();
     addToolbarEvents();
     addStocksListEvents();
-    addFilterEvents()
+    if (uiState.isFilterOpen)
+      addFilterEvents();
+  }
+
+  function addRouteEvents() {
+    window.addEventListener('hashchange', hashchangeHandler)
   }
 
   function addToolbarEvents() {
@@ -137,7 +147,15 @@
     filterApplyButton.addEventListener('click', filterApplyClickHandler)
   }
 
-  function filterApplyClickHandler(e) {
+  function hashchangeHandler() {
+    window.Stokr.Ctrl.handleHashChange();
+  }
+
+  function getHash() {
+    return window.location.hash;
+  }
+
+  function filterApplyClickHandler() {
     const filterParameters = {};
     const filterLabels = document.querySelectorAll('.filter-parameters > label');
     filterLabels.forEach(filterLabel => {
@@ -181,8 +199,10 @@
   }
 
   window.Stokr.View = {
-    render,
+    renderStocksPage,
     renderHeader,
-    renderStocksList
+    renderStocksList,
+    renderSearchPage,
+    getHash
   }
 })();

@@ -9,40 +9,44 @@
   const _state = {
     ui : {
       currentStockChangeDisplay : 0,
-      stockChangeDisplay : ['Change', 'PercentChange'],
-      isFilterOpen : true,
+      stockChangeDisplay : ['Change', 'realtime_chg_percent', 'MarketCapitalization'],
+      isFilterOpen : false,
       filters: {}
     },
-    stocksData : [
-      {
-        "Symbol": "WIX",
-        "Name": "Wix.com Ltd.",
-        "Change": "0.750000",
-        "PercentChange": "+1.51%",
-        "LastTradePriceOnly": "76.099998"
-      },
-      {
-        "Symbol": "MSFT",
-        "Name": "Microsoft Corporation",
-        "PercentChange": "-2.09%",
-        "Change": "-0.850006",
-        "LastTradePriceOnly": "69.620003"
-      },
-      {
-        "Symbol": "YHOO",
-        "Name": "Yahoo! Inc.",
-        "Change": "0.279999",
-        "PercentChange": "+1.11%",
-        "LastTradePriceOnly": "50.599998"
-      }
-    ]
+    stocksSymbols: [
+      "WIX",
+      "MSFT",
+      "AAPL"
+    ],
+    stocksData : [],
+    stocksSymbolData: []
   };
 
   function getState() {
     return _state;
   }
 
+  function getStocksData() {
+    return _state.stocksData;
+  }
+
+  function getStocksSymbols() {
+    return _state.stocksSymbols;
+  }
+
+  function getUIState() {
+    return _state.ui;
+  }
+
+  function getCurrentStockChangeDisplay() {
+    return _state.ui.stockChangeDisplay[_state.ui.currentStockChangeDisplay];
+  }
+
   window.Stokr.Model = {
-    getState
+    getState,
+    getStocksData,
+    getStocksSymbols,
+    getUIState,
+    getCurrentStockChangeDisplay
   }
 })();

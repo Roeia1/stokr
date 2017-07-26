@@ -10,57 +10,96 @@
 
   const model = window.Stokr.Model;
 
+  const uiState = model.getUIState();
+
+  const stocksData = model.getStocksData();
+
+  const stocksSymbols = model.getStocksSymbols();
+
+  const serverURL = 'http://localhost:7000/';
+
+  const getQuotesURL = serverURL + 'quotes?q=';
+
   // -------------Main-------------
 
   (() => {
-    initStocksData();
+    if (view.getHash() === '#search')
+      view.renderSearchPage();
+    else
+      initStocksData(stocksSymbols)
+        .then(() => {
+          processStocksData(stocksData);
 
-    view.render(getStocksData(), getStateUI());
+          view.renderStocksPage(stocksData, uiState);
+        });
   })();
 
   // ------ Public Functions --------
 
+  function handleHashChange() {
+    if (view.getHash() === '#search')
+      view.renderSearchPage();
+    else
+      view.renderStocksPage(stocksData, uiState);
+  }
+
   function moveStock(stockSymbol, direction) {
-    const stockData = getStockDataBySymbol(stockSymbol, getStocksData());
-    if (getStocksData().indexOf(stockData) > -1) {
-      const stockPosition = getStocksData().indexOf(stockData);
+    const stockData = getStockDataBySymbol(stockSymbol, stocksData);
+    if (stocksData.indexOf(stockData) > -1) {
+      const stockPosition = stocksData.indexOf(stockData);
       const newStockPosition = direction === 'up' ? stockPosition - 1 : stockPosition + 1;
-      getStocksData().splice(stockPosition, 1);
-      getStocksData().splice(newStockPosition, 0, stockData);
+      stocksData.splice(stockPosition, 1);
+      stocksData.splice(newStockPosition, 0, stockData);
+      stocksSymbols.splice(stockPosition, 1);
+      stocksSymbols.splice(newStockPosition, 0, stockSymbol);
     }
-    setStocksMovementData(getStocksData());
-    view.renderStocksList(getStocksData(), getStateUI());
+    setStocksMovementData(stocksData);
+    renderStocksList();
   }
 
   function toggleStockChangeDisplay() {
-    if (getStateUI().currentStockChangeDisplay < getStateUI().stockChangeDisplay.length - 1)
-      getStateUI().currentStockChangeDisplay++;
+    if (uiState.currentStockChangeDisplay < uiState.stockChangeDisplay.length - 1)
+      uiState.currentStockChangeDisplay++;
     else
-      getStateUI().currentStockChangeDisplay = 0;
-    setStocksChangeDisplayData(getStocksData());
-    view.renderStocksList(getStocksData(), getStateUI())
+      uiState.currentStockChangeDisplay = 0;
+    setStocksChangeDisplayData(stocksData);
+    renderStocksList();
   }
 
   function toolbarFilterClick() {
-    getStateUI().isFilterOpen = !getStateUI().isFilterOpen;
-    if (!getStateUI().isFilterOpen)
-      getStateUI().filters = {};
-    view.renderHeader(getStateUI());
-    view.renderStocksList(getStocksData(), getStateUI())
+    uiState.isFilterOpen = !uiState.isFilterOpen;
+    if (!uiState.isFilterOpen)
+      uiState.filters = {};
+    view.renderHeader(uiState);
+    renderStocksList();
   }
 
   function setFilters(filterParameters) {
-    getStateUI().filters = filterParameters;
-    view.renderStocksList(getStocksData(), getStateUI());
+    uiState.filters = filterParameters;
+    renderStocksList();
   }
 
   // ------- Private Functions ----------
 
-  function initStocksData() {
-    setStocksMovementData(getStocksData());
-    setStocksChangeDirectionData(getStocksData());
-    setStocksChangeDisplayData(getStocksData());
-    setStocksLastTradePriceOnlyDisplayData(getStocksData());
+  function renderStocksList() {
+    view.renderStocksList(getStocksData(), uiState);
+  }
+
+  function initStocksData(stocksSymbols) {
+    return Promise.all(stocksSymbols.map(symbol => fetchStockData(symbol)));
+  }
+
+  function fetchStockData(stockSymbol) {
+    return fetch(getQuotesURL + stockSymbol)
+      .then(res => res.ok ? res.json() : Promise.reject('res not ok'))
+      .then(res => stocksData.push(res.query.results.quote));
+  }
+
+  function processStocksData(stocksData) {
+    setStocksMovementData(stocksData);
+    setStocksChangeDirectionData(stocksData);
+    setStocksChangeDisplayData(stocksData);
+    setStocksLastTradePriceOnlyDisplayData(stocksData);
   }
 
   function setStocksMovementData(stocksData) {
@@ -92,29 +131,26 @@
     })
   }
 
-  function getFilteredStocks(stocksData, filterParameters) {
+  function getFilteredStocks() {
+    const filterCheck = {
+      name: (stockData, value) => {
+        return !stockData.Name.toLowerCase().includes(value.toLowerCase());
+      },
+      gain: (stockData, value) => {
+        return true;
+      },
+      rangeFrom: (stockData, value) => {
+        return stockData.LastTradePriceOnly < value;
+      },
+      rangeTo: (stockData, value) => {
+        return stockData.LastTradePriceOnly > value;
+      }
+    };
     return stocksData.filter(stockData => {
-      for (const [key, value] of Object.entries(filterParameters)) {
-        switch (key) {
-          case 'name': {
-            if (!stockData.Name.toLowerCase().includes(value.toLowerCase()))
-              return false;
-            break;
-          }
-          case 'gain': {
-            break;
-          }
-          case 'range-from': {
-            if (stockData.LastTradePriceOnly < value)
-              return false;
-            break;
-          }
-          case 'range-to': {
-            if (stockData.LastTradePriceOnly > value)
-              return false;
-            break;
-          }
-        }
+      for (const [key, value] of Object.entries(uiState.filters)) {
+        if (filterCheck[key])
+          if (!filterCheck[key](stockData, value));
+        return false;
       }
       return true;
     });
@@ -123,9 +159,19 @@
   // -------- Utilities ----------
 
   function getStockChangeDisplayData(stockData) {
-    const currentStockChangeDisplay = getStateUI().stockChangeDisplay[getStateUI().currentStockChangeDisplay];
-    const stockChangeDisplayData = stockData[currentStockChangeDisplay];
-    return stockChangeDisplayData.indexOf('%') > -1 ? stockChangeDisplayData : parseFloat(stockChangeDisplayData).toFixed(2);
+    const currentStockChangeDisplay = model.getCurrentStockChangeDisplay();
+    let stockChangeDisplayData = parseFloat(stockData[currentStockChangeDisplay]).toFixed(2);
+    switch (currentStockChangeDisplay) {
+      case 'realtime_chg_percent': {
+        stockChangeDisplayData += '%';
+        break;
+      }
+      case 'MarketCapitalization': {
+        stockChangeDisplayData += 'B';
+        break;
+      }
+    }
+    return stockChangeDisplayData;
   }
 
   function getStockDataBySymbol(stockSymbol, stocksData) {
@@ -145,15 +191,12 @@
     }
   }
 
-  function getStateUI() {
-    return model.getState().ui;
-  }
-
   window.Stokr.Ctrl = {
     moveStock,
     toggleStockChangeDisplay,
     toolbarFilterClick,
-    setFilters
+    setFilters,
+    handleHashChange
   }
 
 })();
