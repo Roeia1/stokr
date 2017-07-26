@@ -12,13 +12,13 @@
 
   const uiState = model.getUIState();
 
-  const stocksData = model.getStocksData();
-
   const stocksSymbols = model.getStocksSymbols();
 
   const serverURL = 'http://localhost:7000/';
 
   const getQuotesURL = serverURL + 'quotes?q=';
+
+  let stocksData = model.getStocksData();
 
   // -------------Main-------------
 
@@ -26,12 +26,7 @@
     if (view.getHash() === '#search')
       view.renderSearchPage();
     else
-      initStocksData(stocksSymbols)
-        .then(() => {
-          processStocksData(stocksData);
-
-          view.renderStocksPage(stocksData, uiState);
-        });
+      initStocksPage();
   })();
 
   // ------ Public Functions --------
@@ -54,7 +49,7 @@
       stocksSymbols.splice(newStockPosition, 0, stockSymbol);
     }
     setStocksMovementData(stocksData);
-    renderStocksList();
+    renderStocksListInView();
   }
 
   function toggleStockChangeDisplay() {
@@ -63,7 +58,7 @@
     else
       uiState.currentStockChangeDisplay = 0;
     setStocksChangeDisplayData(stocksData);
-    renderStocksList();
+    renderStocksListInView();
   }
 
   function toolbarFilterClick() {
@@ -71,28 +66,40 @@
     if (!uiState.isFilterOpen)
       uiState.filters = {};
     view.renderHeader(uiState);
-    renderStocksList();
+    renderStocksListInView();
+  }
+
+  function toolbarRefreshClick() {
+    initStocksPage();
   }
 
   function setFilters(filterParameters) {
     uiState.filters = filterParameters;
-    renderStocksList();
+    renderStocksListInView();
   }
 
   // ------- Private Functions ----------
 
-  function renderStocksList() {
-    view.renderStocksList(getStocksData(), uiState);
+  function initStocksPage() {
+    initStocksData(stocksSymbols)
+      .then(() => {
+        processStocksData(stocksData);
+        view.renderStocksPage(stocksData, uiState);
+      });
   }
 
   function initStocksData(stocksSymbols) {
-    return Promise.all(stocksSymbols.map(symbol => fetchStockData(symbol)));
+    return fetchStocksData(stocksSymbols)
+      .then(res => {
+        model.setStocksData(res.query.results.quote);
+        stocksData = getStocksData();
+      });
   }
 
-  function fetchStockData(stockSymbol) {
-    return fetch(getQuotesURL + stockSymbol)
-      .then(res => res.ok ? res.json() : Promise.reject('res not ok'))
-      .then(res => stocksData.push(res.query.results.quote));
+  function fetchStocksData(stocksSymbols) {
+    return fetch(getQuotesURL + stocksSymbols.join(','))
+      .then(res => res.ok ? res.json() : Promise.reject('res not ok'));
+      // .then(res => stocksData.push(res.query.results.quote));
   }
 
   function processStocksData(stocksData) {
@@ -131,16 +138,20 @@
     })
   }
 
+  function renderStocksListInView() {
+    view.renderStocksList(getStocksData(), uiState);
+  }
+
   function getFilteredStocks() {
     const filterCheck = {
       name: (stockData, value) => {
-        return !stockData.Name.toLowerCase().includes(value.toLowerCase());
+
       },
       gain: (stockData, value) => {
         return true;
       },
       rangeFrom: (stockData, value) => {
-        return stockData.LastTradePriceOnly < value;
+
       },
       rangeTo: (stockData, value) => {
         return stockData.LastTradePriceOnly > value;
@@ -148,9 +159,26 @@
     };
     return stocksData.filter(stockData => {
       for (const [key, value] of Object.entries(uiState.filters)) {
-        if (filterCheck[key])
-          if (!filterCheck[key](stockData, value));
-        return false;
+        switch (key) {
+          case 'name': {
+            if (!stockData.Name.toLowerCase().includes(value.toLowerCase()))
+              return false;
+            break;
+          }
+          case 'gain': {
+            break;
+          }
+          case 'rangeFrom': {
+            if (stockData.LastTradePriceOnly < value)
+              return false;
+            break;
+          }
+          case 'rangeTo': {
+            if (stockData.LastTradePriceOnly > value)
+              return false;
+            break;
+          }
+        }
       }
       return true;
     });
@@ -195,6 +223,7 @@
     moveStock,
     toggleStockChangeDisplay,
     toolbarFilterClick,
+    toolbarRefreshClick,
     setFilters,
     handleHashChange
   }

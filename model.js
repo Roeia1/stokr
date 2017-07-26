@@ -42,11 +42,16 @@
     return _state.ui.stockChangeDisplay[_state.ui.currentStockChangeDisplay];
   }
 
+  function setStocksData(stocksData) {
+    _state.stocksData = stocksData;
+  }
+
   window.Stokr.Model = {
     getState,
     getStocksData,
     getStocksSymbols,
     getUIState,
-    getCurrentStockChangeDisplay
+    getCurrentStockChangeDisplay,
+    setStocksData
   }
 })();

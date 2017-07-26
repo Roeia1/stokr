@@ -30,7 +30,9 @@
   }
 
   function renderSearchPage() {
-    document.querySelector('[data-id=root]').innerHTML = ``;
+    document.querySelector('[data-id=root]').innerHTML = `
+      <a href="#">click back</a>
+    `;
   }
 
   // -------- Functions ---------
@@ -171,6 +173,7 @@
         break;
       }
       case 'refresh': {
+        window.Stokr.Ctrl.toolbarRefreshClick();
         break;
       }
       case 'filter': {
