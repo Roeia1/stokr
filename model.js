@@ -24,10 +24,6 @@
     }
   ;
 
-  function getState() {
-    return _state;
-  }
-
   function getStocksData() {
     return _state.stocksData;
   }
@@ -48,12 +44,26 @@
     _state.stocksData = stocksData;
   }
 
+  function setStocksSymbols(stocksSymbols) {
+    _state.stocksSymbols = stocksSymbols;
+  }
+
+  function setUIState(UIState) {
+    _state.ui = UIState;
+  }
+
+  function setFilters(filters) {
+    _state.ui.filters = filters
+  }
+
   window.Stokr.Model = {
-    getState,
     getStocksData,
     getStocksSymbols,
     getUIState,
     getCurrentStockChangeDisplay,
-    setStocksData
+    setStocksData,
+    setStocksSymbols,
+    setUIState,
+    setFilters
   }
 })();

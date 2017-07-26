@@ -10,15 +10,9 @@
 
   const model = window.Stokr.Model;
 
-  const uiState = model.getUIState();
-
-  const stocksSymbols = model.getStocksSymbols();
-
   const serverURL = 'http://localhost:7000/';
 
   const getQuotesURL = serverURL + 'quotes?q=';
-
-  let stocksData = model.getStocksData();
 
   // -------------Main-------------
 
@@ -26,7 +20,7 @@
     if (view.getHash() === '#search')
       view.renderSearchPage();
     else
-      initStocksPage();
+      loadStocksPage();
   })();
 
   // ------ Public Functions --------
@@ -35,10 +29,12 @@
     if (view.getHash() === '#search')
       view.renderSearchPage();
     else
-      view.renderStocksPage(stocksData, uiState);
+      view.renderStocksPage(getStocksData(), model.getUIState());
   }
 
   function moveStock(stockSymbol, direction) {
+    const stocksData = model.getStocksData();
+    const stocksSymbols = model.getStocksSymbols();
     const stockData = getStockDataBySymbol(stockSymbol, stocksData);
     if (stocksData.indexOf(stockData) > -1) {
       const stockPosition = stocksData.indexOf(stockData);
@@ -49,65 +45,90 @@
       stocksSymbols.splice(newStockPosition, 0, stockSymbol);
     }
     setStocksMovementData(stocksData);
-    renderStocksListInView();
+    view.renderStocksList(getStocksData(), model.getUIState());
+    saveToStorage(stocksSymbols, model.getUIState());
   }
 
   function toggleStockChangeDisplay() {
+    const uiState = model.getUIState();
     if (uiState.currentStockChangeDisplay < uiState.stockChangeDisplay.length - 1)
       uiState.currentStockChangeDisplay++;
     else
       uiState.currentStockChangeDisplay = 0;
-    setStocksChangeDisplayData(stocksData);
-    renderStocksListInView();
+    setStocksChangeDisplayData(getStocksData());
+    view.renderStocksList(getStocksData(), model.getUIState());
+    saveToStorage(model.getStocksSymbols(), uiState);
   }
 
   function toolbarFilterClick() {
+    const uiState = model.getUIState();
     uiState.isSettingsOpen = false;
     uiState.isFilterOpen = !uiState.isFilterOpen;
     if (!uiState.isFilterOpen)
       uiState.filters = {};
     view.renderHeader(uiState);
-    renderStocksListInView();
+    view.renderStocksList(getStocksData(), model.getUIState());
+    saveToStorage(model.getStocksSymbols(), uiState);
   }
 
   function toolbarRefreshClick() {
-    initStocksPage();
+    refreshStocksData(model.getStocksSymbols());
   }
 
   function toolbarSettingsClick() {
+    const uiState = model.getUIState();
     uiState.isFilterOpen = false;
     uiState.isSettingsOpen = !uiState.isSettingsOpen;
     view.renderHeader(uiState);
-    renderStocksListInView();
+    view.renderStocksList(getStocksData(), model.getUIState());
+    saveToStorage(model.getStocksSymbols(), uiState);
   }
 
-  function setFilters(filterParameters) {
-    uiState.filters = filterParameters;
-    renderStocksListInView();
+  function setFilters(filters) {
+    model.setFilters(filters);
+    view.renderStocksList(getFilteredStocks(), model.getUIState());
+    saveToStorage(model.getStocksSymbols(), model.getUIState());
   }
 
   // ------- Private Functions ----------
 
-  function initStocksPage() {
-    initStocksData(stocksSymbols)
+  function loadStocksPage() {
+    loadAppData();
+    refreshStocksData(model.getStocksSymbols())
       .then(() => {
-        processStocksData(stocksData);
-        view.renderStocksPage(stocksData, uiState);
+        processStocksData(getStocksData());
+        view.renderStocksPage(getStocksData(), model.getUIState());
       });
   }
 
-  function initStocksData(stocksSymbols) {
+  function saveToStorage(stocksSymbols, uiState) {
+    localStorage.setItem('StokrData', JSON.stringify({
+      uiState,
+      stocksSymbols
+    }));
+  }
+
+  function loadAppData() {
+    let stokrData = localStorage.getItem('StokrData');
+    if (stokrData) {
+      stokrData = JSON.parse(stokrData);
+      model.setStocksSymbols(stokrData.stocksSymbols);
+      model.setUIState(stokrData.uiState);
+    } else {
+      saveToStorage(model.getStocksSymbols(), model.getUIState());
+    }
+  }
+
+  function refreshStocksData(stocksSymbols) {
     return fetchStocksData(stocksSymbols)
       .then(res => {
         model.setStocksData(res.query.results.quote);
-        stocksData = getStocksData();
       });
   }
 
   function fetchStocksData(stocksSymbols) {
     return fetch(getQuotesURL + stocksSymbols.join(','))
       .then(res => res.ok ? res.json() : Promise.reject('res not ok'));
-      // .then(res => stocksData.push(res.query.results.quote));
   }
 
   function processStocksData(stocksData) {
@@ -146,25 +167,9 @@
     })
   }
 
-  function renderStocksListInView() {
-    view.renderStocksList(getStocksData(), uiState);
-  }
-
   function getFilteredStocks() {
-    const filterCheck = {
-      name: (stockData, value) => {
-
-      },
-      gain: (stockData, value) => {
-        return true;
-      },
-      rangeFrom: (stockData, value) => {
-
-      },
-      rangeTo: (stockData, value) => {
-        return stockData.LastTradePriceOnly > value;
-      }
-    };
+    const uiState = model.getUIState();
+    const stocksData = model.getStocksData();
     return stocksData.filter(stockData => {
       for (const [key, value] of Object.entries(uiState.filters)) {
         switch (key) {
@@ -219,12 +224,10 @@
   }
 
   function getStocksData() {
-    const state = model.getState();
-    if (state.ui.isFilterOpen) {
-      return getFilteredStocks(state.stocksData, state.ui.filters);
-    } else {
-      return state.stocksData;
-    }
+    const uiState = model.getUIState();
+    if (uiState.isFilterOpen)
+      return getFilteredStocks();
+    return model.getStocksData();
   }
 
   window.Stokr.Ctrl = {

@@ -167,13 +167,13 @@
   }
 
   function filterApplyClickHandler() {
-    const filterParameters = {};
+    const filters = {};
     const filterLabels = document.querySelectorAll('.filter-parameters > label');
     filterLabels.forEach(filterLabel => {
       if (filterLabel.childNodes[1].value)
-        filterParameters[filterLabel.id] = filterLabel.childNodes[1].value;
+        filters[filterLabel.id] = filterLabel.childNodes[1].value;
     });
-    window.Stokr.Ctrl.setFilters(filterParameters);
+    window.Stokr.Ctrl.setFilters(filters);
   }
 
   function toolbarClickHandler(e) {
