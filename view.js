@@ -47,7 +47,7 @@
               <li><a href="#search" class="toolbar-button icon-search" data-type="search"></a></li>
               <li><button class="toolbar-button icon-refresh" data-type="refresh"></button></li>
               <li><button class="toolbar-button icon-filter" data-type="filter" style="color: ${uiState.isFilterOpen ? '#41bf15' : '#ababab'}"></button></li>
-              <li><button class="toolbar-button icon-settings" data-type="settings"></button></li>
+              <li><button class="toolbar-button icon-settings" data-type="settings" style="color: ${uiState.isSettingsOpen ? '#41bf15' : '#ababab'}"></button></li>
             </ul>
           </nav>
         </section>
@@ -95,8 +95,11 @@
   function getStock(stockData, uiState) {
     return `
       <li class="stock" data-symbol="${stockData.Symbol}">
-        <span class="stock-text">
-          ${stockData.Symbol} (${stockData.Name})
+        <span class="stock-delete-and-text">
+          ${uiState.isSettingsOpen ? getStockDeleteButton() : ''}
+          <span class="stock-text">
+            ${stockData.Symbol} (${stockData.Name})
+          </span>
         </span>
         <span class="stock-stats">
           <span class="stock-last-price">
@@ -117,6 +120,12 @@
         <button class="icon-arrow up" data-type="arrow" data-direction="up" ${stockData.canMoveUp ? '' : 'disabled'}></button>
         <button class="icon-arrow down" data-type="arrow" data-direction="down" ${stockData.canMoveDown ? '' : 'disabled'}></button>
       </span>
+    `;
+  }
+
+  function getStockDeleteButton() {
+    return `
+        <button class="delete-stock"></button>
     `;
   }
 
@@ -181,6 +190,7 @@
         break;
       }
       case 'settings': {
+        window.Stokr.Ctrl.toolbarSettingsClick();
         break;
       }
     }

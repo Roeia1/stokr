@@ -144,8 +144,34 @@ main {
   border-bottom-width: 1px;
 }
 
+.stock-delete-and-text {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+button.delete-stock {
+  height: 43px;
+  width: 44.3px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  background-color: #ff4f46;
+  border: solid 1px #ff4f46;
+  border-radius: 50%;
+}
+
+button.delete-stock::after {
+  content: '';
+  width: 23px;
+  height: 2px;
+  background-color: #ffffff;
+  border: solid 2px #ffffff;
+}
+
 .stock-text {
-  width: 465px;
   height: 45px;
   font-family: Avenir;
   font-size: 33px;

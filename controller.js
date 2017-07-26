@@ -62,6 +62,7 @@
   }
 
   function toolbarFilterClick() {
+    uiState.isSettingsOpen = false;
     uiState.isFilterOpen = !uiState.isFilterOpen;
     if (!uiState.isFilterOpen)
       uiState.filters = {};
@@ -71,6 +72,13 @@
 
   function toolbarRefreshClick() {
     initStocksPage();
+  }
+
+  function toolbarSettingsClick() {
+    uiState.isFilterOpen = false;
+    uiState.isSettingsOpen = !uiState.isSettingsOpen;
+    view.renderHeader(uiState);
+    renderStocksListInView();
   }
 
   function setFilters(filterParameters) {
@@ -207,7 +215,7 @@
   }
 
   function isStockChangePositive(stockData) {
-    return stockData.Change > 0;
+    return stockData.Change >= 0;
   }
 
   function getStocksData() {
@@ -224,6 +232,7 @@
     toggleStockChangeDisplay,
     toolbarFilterClick,
     toolbarRefreshClick,
+    toolbarSettingsClick,
     setFilters,
     handleHashChange
   }

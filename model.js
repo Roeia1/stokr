@@ -7,20 +7,22 @@
   window.Stokr = window.Stokr || {};
 
   const _state = {
-    ui : {
-      currentStockChangeDisplay : 0,
-      stockChangeDisplay : ['Change', 'realtime_chg_percent', 'MarketCapitalization'],
-      isFilterOpen : false,
-      filters: {}
-    },
-    stocksSymbols: [
-      "WIX",
-      "MSFT",
-      "AAPL"
-    ],
-    stocksData : [],
-    stocksSymbolData: []
-  };
+      ui: {
+        currentStockChangeDisplay: 0,
+        stockChangeDisplay: ['Change', 'realtime_chg_percent', 'MarketCapitalization'],
+        isFilterOpen: false,
+        isSettingsOpen: false,
+        filters: {}
+      },
+      stocksSymbols: [
+        "WIX",
+        "MSFT",
+        "AAPL"
+      ],
+      stocksData: [],
+      stocksSymbolData: []
+    }
+  ;
 
   function getState() {
     return _state;
