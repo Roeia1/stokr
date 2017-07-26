@@ -125,7 +125,7 @@
 
   function getStockDeleteButton() {
     return `
-        <button class="delete-stock"></button>
+        <button class="delete-stock" data-type="delete"></button>
     `;
   }
 
@@ -182,7 +182,7 @@
         break;
       }
       case 'refresh': {
-        window.Stokr.Ctrl.toolbarRefreshClick();
+        window.Stokr.Ctrl.refreshStocks();
         break;
       }
       case 'filter': {
@@ -206,6 +206,11 @@
       }
       case 'stockChangeDisplay': {
         window.Stokr.Ctrl.toggleStockChangeDisplay();
+        break;
+      }
+      case 'delete': {
+        const stock = e.target.closest('li');
+        window.Stokr.Ctrl.deleteStock(stock.dataset.symbol);
         break;
       }
     }

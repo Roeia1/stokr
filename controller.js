@@ -25,6 +25,14 @@
 
   // ------ Public Functions --------
 
+  function refreshStocks() {
+    updateStocksData(model.getStocksSymbols())
+      .then(() => {
+        processStocksData(getStocksData());
+        view.renderStocksPage(getStocksData(), model.getUIState());
+      });
+  }
+
   function handleHashChange() {
     if (view.getHash() === '#search')
       view.renderSearchPage();
@@ -71,10 +79,6 @@
     saveToStorage(model.getStocksSymbols(), uiState);
   }
 
-  function toolbarRefreshClick() {
-    refreshStocksData(model.getStocksSymbols());
-  }
-
   function toolbarSettingsClick() {
     const uiState = model.getUIState();
     uiState.isFilterOpen = false;
@@ -90,15 +94,21 @@
     saveToStorage(model.getStocksSymbols(), model.getUIState());
   }
 
+  function deleteStock(stockSymbol) {
+    const stocksSymbols = model.getStocksSymbols();
+    const stocksData = getStocksData();
+    const stockData = getStockDataBySymbol(stockSymbol, stocksData);
+    stocksSymbols.splice(stocksSymbols.indexOf(stockSymbol), 1);
+    stocksData.splice(stocksData.indexOf(stockData), 1);
+    view.renderStocksList(getStocksData(), model.getUIState());
+    saveToStorage(model.getStocksSymbols(), model.getUIState());
+  }
+
   // ------- Private Functions ----------
 
   function loadStocksPage() {
     loadAppData();
-    refreshStocksData(model.getStocksSymbols())
-      .then(() => {
-        processStocksData(getStocksData());
-        view.renderStocksPage(getStocksData(), model.getUIState());
-      });
+    refreshStocks();
   }
 
   function saveToStorage(stocksSymbols, uiState) {
@@ -119,10 +129,13 @@
     }
   }
 
-  function refreshStocksData(stocksSymbols) {
+  function updateStocksData(stocksSymbols) {
     return fetchStocksData(stocksSymbols)
       .then(res => {
-        model.setStocksData(res.query.results.quote);
+        let stockArray = res.query.results.quote;
+        if (stocksSymbols.length === 1)
+          stockArray = [stockArray];
+        model.setStocksData(stockArray);
       });
   }
 
@@ -234,8 +247,9 @@
     moveStock,
     toggleStockChangeDisplay,
     toolbarFilterClick,
-    toolbarRefreshClick,
+    refreshStocks,
     toolbarSettingsClick,
+    deleteStock,
     setFilters,
     handleHashChange
   }
