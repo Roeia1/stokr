@@ -19,7 +19,7 @@ body {
   display: flex;
   margin: 60px 40px;
   flex: 1;
-  flex-flow: column wrap;
+  flex-flow: column nowrap;
   background-color: #ffffff;
 }
 
@@ -241,3 +241,82 @@ button.delete-stock::after {
 .negative-change{
   background-color: #ff4f46;
 }
+
+.search-header {
+  height: 15%;
+  padding: 0 30px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  border: 0 solid #e5e5e5;
+  border-bottom-width: 1px;
+}
+
+.search-line {
+  width: 1250px;
+  height: 62px;
+  padding: 0 20px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 20px;
+  background-color: #ffffff;
+  border: solid 1px #408be3;
+}
+
+.search-line > input {
+  border: none;
+  outline: none;
+  width: 200px;
+  height: 31px;
+  font-family: HelveticaNeueW01-55Roman;
+  font-size: 26px;
+  text-align: left;
+  color: #607982;
+}
+
+.search-line > button {
+  width: 88px;
+  height: 31px;
+  border: none;
+  background-color: transparent;
+  font-family: HelveticaNeueW01-55Roman;
+  font-size: 26px;
+  text-align: left;
+  color: #41bf15;
+  text-transform: capitalize;
+}
+
+.search-main {
+  height: 85%;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-main > div {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-pic {
+  font-size: 250px;
+  color: #ababab;
+}
+
+.search-text {
+  width: 218.3px;
+  height: 38px;
+  font-family: HelveticaNeueW01-55Roman;
+  font-size: 33px;
+  text-align: center;
+  color: #868686;
+  text-transform: capitalize;
+}
+
+

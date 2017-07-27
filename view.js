@@ -31,11 +31,30 @@
 
   function renderSearchPage() {
     document.querySelector('[data-id=root]').innerHTML = `
-      <a href="#">click back</a>
+      <header class="search-header">
+        <div class="search-line">
+          <input>
+          <button>
+            cancel
+          </button>  
+        </div>
+      </header>
+      <main class="search-main">
+        ${getSearchPlaceHolder()}
+      </main>
     `;
   }
 
   // -------- Functions ---------
+
+  function getSearchPlaceHolder() {
+    return `
+      <div>
+        <span class="icon-search-place-holder search-pic"></span>
+        <span class="search-text">search</span>
+      </div>   
+    `;
+  }
 
   function getHeader(uiState) {
     return `
